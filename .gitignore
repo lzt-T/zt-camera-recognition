@@ -1,0 +1,8 @@
+node_modules/
+build/
+prebuilds/
+*.log
+.DS_Store
+*.swp
+*.swo
+*~

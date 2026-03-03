@@ -1,0 +1,64 @@
+{
+  "name": "md-camera-recognition",
+  "version": "1.0.0",
+  "description": "跨平台摄像头设备识别库",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "test": "node test/basic.test.js",
+    "compile": "node-gyp rebuild",
+    "install": "node-gyp rebuild",
+    "prebuild": "prebuild --strip",
+    "prebuild:all": "prebuild --strip --target 22.18.0 --target 20.18.0 --target 18.20.0 --target 16.20.0",
+    "prebuild:upload": "prebuild --upload-all",
+    "package": "pnpm pack"
+  },
+  "gypfile": true,
+  "os": [
+    "win32",
+    "darwin"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "camera",
+    "device",
+    "recognition",
+    "cross-platform",
+    "windows",
+    "macos",
+    "native",
+    "addon",
+    "prebuild"
+  ],
+  "dependencies": {
+    "bindings": "^1.5.0",
+    "node-addon-api": "^8.5.0",
+    "prebuild-install": "^7.1.3"
+  },
+  "devDependencies": {
+    "node-gyp": "^11.0.0",
+    "prebuild": "^13.0.1"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "binding.gyp",
+    "src/",
+    "README.md",
+    "LICENSE",
+    "prebuilds/"
+  ],
+  "license": "MIT",
+  "binary": {
+    "module_name": "md-camera-recognition",
+    "module_path": "./build/Release",
+    "host": "https://github.com/YOUR_USERNAME/md-camera-recognition/releases/download/"
+  }
+}
