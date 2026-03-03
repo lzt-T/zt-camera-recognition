@@ -88,7 +88,7 @@ const devices: camera.CameraDevice[] = camera.getCameraDevices();
 ## 从源码构建
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/md-camera-recognition.git
+git clone https://github.com/lzt-T/md-camera-recognition.git
 cd md-camera-recognition
 pnpm install
 pnpm run build
@@ -100,22 +100,22 @@ pnpm run build
 
 **Windows x64:**
 ```bash
-pnpm run prebuild
+pnpm run prebuild:all
 ```
 
 **macOS x64:**
 ```bash
-pnpm run prebuild
+pnpm run prebuild:all
 ```
 
 **macOS ARM64:**
 ```bash
-pnpm run prebuild
+pnpm run prebuild:all
 ```
 
 ### 2. 上传到 GitHub Releases
 
-访问 [GitHub Releases](https://github.com/YOUR_USERNAME/md-camera-recognition/releases)，创建新版本并上传所有 `prebuilds/` 目录下的 `.tar.gz` 文件。
+访问 [GitHub Releases](https://github.com/lzt-T/md-camera-recognition/releases)，创建新版本并上传所有 `prebuilds/` 目录下的 `.tar.gz` 文件。
 
 ### 3. 更新 package.json
 
