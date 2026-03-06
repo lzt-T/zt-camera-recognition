@@ -10,7 +10,7 @@
 - 跨平台支持：Windows 和 macOS
 - 获取摄像头设备完整信息（名称、厂商 ID、产品 ID、安装日期等）
 - 原生 C++ 实现，性能优越
-- 预构建二进制文件，首次使用时自动下载，无需本地编译环境
+- 预构建二进制文件，自动从 GitHub Releases 下载，无需本地编译环境
 - 兼容所有主流包管理器（npm / yarn / pnpm）
 - 支持 Node.js 14+，兼容所有版本（基于 Node-API）
 
@@ -24,7 +24,17 @@ yarn add zt-camera-recognition
 pnpm add zt-camera-recognition
 ```
 
-> **pnpm 用户注意**：pnpm v10 默认阻止包运行安装脚本。本库已内置自动处理机制，首次 `require()` 时会自动从 GitHub Releases 下载预编译文件，无需任何额外配置。
+> **pnpm 用户注意**：pnpm v10 默认阻止包运行安装脚本。推荐在项目的 `package.json` 中添加以下配置，让 pnpm 在安装时自动下载预编译文件：
+>
+> ```json
+> {
+>   "pnpm": {
+>     "onlyBuiltDependencies": ["zt-camera-recognition"]
+>   }
+> }
+> ```
+>
+> 若未添加此配置，本库也会在首次 `require()` 时自动从 GitHub Releases 下载预编译文件。
 
 ## 使用方法
 
@@ -117,25 +127,35 @@ interface CameraDevice {
 
 ## 预构建二进制文件
 
-本库使用基于 [Node-API](https://nodejs.org/api/n-api.html) 的预构建二进制文件，一个文件兼容所有 Node.js 版本，无需为不同运行时单独构建。
+本库使用基于 [Node-API](https://nodejs.org/api/n-api.html) 的预构建二进制文件，一个文件兼容所有 Node.js 版本及 Electron，无需为不同运行时单独构建。
 
-**安装时的处理优先级：**
+**处理优先级：**
 
-1. 运行 `prebuild-install` 从 GitHub Releases 下载（npm / yarn 用户，安装时完成）
-2. 首次 `require()` 时自动从 GitHub Releases 下载并解压（pnpm v10 用户的兜底方案）
-3. 如果下载失败，尝试从源码本地编译
-4. 编译也失败则抛出明确的错误提示
+1. 安装时运行 `prebuild-install` 从 GitHub Releases 下载（npm / yarn / pnpm + onlyBuiltDependencies）
+2. 若安装脚本未执行，首次 `require()` 时自动从 GitHub Releases 下载
+3. 下载失败则抛出明确的错误提示
 
-若需手动触发编译：
+## 在 Electron 中使用
 
-```bash
-# 需要本地编译环境（见下方"从源码构建"）
-node-gyp rebuild
+本库基于 Node-API（NAPI），预编译文件天然兼容所有 Electron 版本，**只能在主进程中使用**，渲染进程可通过 IPC 调用主进程来获取数据。
+
+### pnpm + electron-builder 配置
+
+使用 pnpm 的 Electron 项目，在 `package.json` 中添加：
+
+```json
+{
+  "pnpm": {
+    "onlyBuiltDependencies": ["zt-camera-recognition"]
+  }
+}
 ```
+
+这样 pnpm 安装时会执行 install 脚本，提前下载好预编译文件。由于发布包中不含 `binding.gyp`，`@electron/rebuild` 不会将其识别为需要重编译的模块，从而避免重编译报错。
 
 ## 从源码构建
 
-如果预构建文件下载失败，可手动从源码编译，需提前安装编译工具：
+如需从源码编译，需提前安装编译工具：
 
 - **Windows**：[Visual Studio 2019+](https://visualstudio.microsoft.com/)（含 C++ 工作负载）和 Python 3.x
 - **macOS**：Xcode Command Line Tools（`xcode-select --install`）
@@ -179,21 +199,19 @@ pnpm run prebuild:all
 
 在 [GitHub Releases](https://github.com/lzt-T/zt-camera-recognition/releases) 创建新 Release（Tag 格式：`v{version}`），将 `prebuilds/` 目录下所有 `.tar.gz` 文件上传。
 
-> 若某平台的预编译文件暂未上传，该平台用户首次使用时会自动回退到本地源码编译。
-
 ## 常见问题
 
 **Q：安装后运行报错 `Could not locate the bindings file`？**
 
-A：预编译文件下载失败且本地编译环境不满足。检查网络是否能访问 GitHub，或参考"从源码构建"安装编译工具后重新安装。
+A：预编译文件下载失败。检查网络是否能访问 GitHub，或参考"从源码构建"安装编译工具后重新安装。
 
 **Q：pnpm 安装时提示 `Ignored build scripts`？**
 
-A：这是 pnpm v10 的安全机制，不影响使用。本库在首次 `require()` 时会自动处理，无需任何额外操作。
+A：这是 pnpm v10 的安全机制。在项目 `package.json` 中添加 `onlyBuiltDependencies` 配置（见上方"pnpm 用户注意"），重新安装后即可在安装阶段完成下载。
 
-**Q：能在浏览器或 Electron 渲染进程中使用吗？**
+**Q：在 Electron 项目中 `electron-builder install-app-deps` 报错 `node-gyp failed to rebuild`？**
 
-A：不能在浏览器中使用（原生 C++ 插件无法在沙箱环境运行）。Electron 主进程中可以正常使用，渲染进程可通过 IPC 调用主进程来获取数据。
+A：`@electron/rebuild` 在扫描到 `binding.gyp` 时会尝试重编译。本库发布包中不含 `binding.gyp`，升级到最新版本后此问题不再出现。同时确保在 `package.json` 中添加 `onlyBuiltDependencies` 配置，让安装阶段提前下载好预编译文件。
 
 ## License
 

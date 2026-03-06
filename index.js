@@ -21,15 +21,6 @@ function ensureBinding() {
 
   for (const napiVer of napiVersions) {
     const tarName = `${name}-v${version}-napi-v${napiVer}-${platform}-${arch}.tar.gz`;
-
-    // 优先查找本地 prebuilds 目录（npm 包内置时使用）
-    const localTarPath = path.join(__dirname, 'prebuilds', tarName);
-    if (fs.existsSync(localTarPath)) {
-      extractNodeFromTarGz(localTarPath, bindingDir);
-      return;
-    }
-
-    // 本地没有则从 GitHub Releases 下载
     const downloadUrl = `${pkg.binary.host}v${version}/${tarName}`;
     fs.mkdirSync(bindingDir, { recursive: true });
     const tmpTarPath = path.join(bindingDir, tarName);
@@ -46,27 +37,11 @@ function ensureBinding() {
     process.stderr.write(`zt-camera-recognition: prebuilt binary not available for ${platform}-${arch} (${downloadUrl})\n`);
   }
 
-  // 没有预编译包，尝试从源码编译
-  process.stderr.write(`zt-camera-recognition: attempting to build from source...\n`);
-  const built = buildFromSource();
-  if (!built) {
-    throw new Error(
-      `zt-camera-recognition: no prebuilt binary available for ${platform}-${arch} v${require('./package.json').version}, ` +
-      `and source compilation failed.\n` +
-      `  - Check if a prebuilt exists: ${require('./package.json').binary.host}\n` +
-      `  - Or install build tools: https://github.com/nodejs/node-gyp#installation`
-    );
-  }
-}
-
-function buildFromSource() {
-  const result = spawnSync('node-gyp', ['rebuild'], {
-    cwd: __dirname,
-    stdio: 'inherit',
-    shell: true,
-    timeout: 120000,
-  });
-  return result.status === 0;
+  throw new Error(
+    `zt-camera-recognition: no prebuilt binary available for ${platform}-${arch} v${require('./package.json').version}.\n` +
+    `  - Supported platforms: Windows x64/arm64, macOS x64/arm64\n` +
+    `  - Check available releases: ${require('./package.json').binary.host}`
+  );
 }
 
 function downloadFileSync(url, destPath) {

@@ -1,6 +1,6 @@
 {
   "name": "zt-camera-recognition",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Cross-platform camera device recognition library",
   "main": "index.js",
   "types": "index.d.ts",
@@ -49,8 +49,6 @@
   "files": [
     "index.js",
     "index.d.ts",
-    "binding.gyp",
-    "src/",
     "README.md",
     "LICENSE"
   ],
