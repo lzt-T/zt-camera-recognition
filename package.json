@@ -1,6 +1,6 @@
 {
   "name": "zt-camera-recognition",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Cross-platform camera device recognition library",
   "main": "index.js",
   "types": "index.d.ts",
@@ -57,6 +57,7 @@
     "module_name": "zt-camera-recognition",
     "module_path": "./build/Release",
     "host": "https://github.com/lzt-T/zt-camera-recognition/releases/download/",
+    "remote_path": "v{version}",
     "napi_versions": [
       6
     ]
