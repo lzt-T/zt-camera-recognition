@@ -1,0 +1,97 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  # ─── 各平台并行构建 ───────────────────────────────────────────────
+  build:
+    name: Build · ${{ matrix.name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Windows x64
+            runner: windows-latest
+            platform: win32
+            arch: x64
+
+          - name: macOS x64 (Intel)
+            runner: macos-13
+            platform: darwin
+            arch: x64
+
+          - name: macOS arm64 (Apple Silicon)
+            runner: macos-latest
+            platform: darwin
+            arch: arm64
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      # Windows 需要 MSVC 构建工具，runners 默认已安装
+      # macOS 需要 Xcode Command Line Tools，runners 默认已安装
+      - name: Install dependencies
+        run: pnpm install --ignore-scripts
+
+      - name: Build prebuilt binary
+        run: pnpm run prebuild
+
+      - name: List generated prebuilds
+        shell: bash
+        run: ls -la prebuilds/
+
+      - name: Upload prebuilt artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuilt-${{ matrix.platform }}-${{ matrix.arch }}
+          path: prebuilds/
+          if-no-files-found: error
+          retention-days: 1
+
+  # ─── 汇总所有平台产物，创建 Release ──────────────────────────────
+  release:
+    name: Create Release
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all prebuilt artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: prebuilds/
+          merge-multiple: true
+
+      - name: List all prebuilt files
+        run: |
+          echo "=== Collected prebuilds ==="
+          ls -lh prebuilds/
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "Release ${{ github.ref_name }}" \
+            --generate-notes \
+            prebuilds/*
