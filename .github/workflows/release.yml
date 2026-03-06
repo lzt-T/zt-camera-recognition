@@ -19,11 +19,6 @@ jobs:
             platform: win32
             arch: x64
 
-          - name: macOS x64 (Intel)
-            runner: macos-13
-            platform: darwin
-            arch: x64
-
           - name: macOS arm64 (Apple Silicon)
             runner: macos-latest
             platform: darwin
