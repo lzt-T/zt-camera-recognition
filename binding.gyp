@@ -1,7 +1,7 @@
 {
   "targets": [
     {
-      "target_name": "md-camera-recognition",
+      "target_name": "zt-camera-recognition",
       "sources": [
         "src/common/camera_common.cc",
         "src/common/platform_factory.cc"

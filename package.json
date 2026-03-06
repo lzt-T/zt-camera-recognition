@@ -1,6 +1,6 @@
 {
   "name": "zt-camera-recognition",
-  "version": "1.0.2",
+  "version": "1.0.7",
   "description": "Cross-platform camera device recognition library",
   "main": "index.js",
   "types": "index.d.ts",
@@ -8,9 +8,9 @@
   "scripts": {
     "test": "node test/basic.test.js",
     "compile": "node-gyp rebuild",
-    "install": "node-gyp rebuild",
-    "prebuild": "prebuild --strip",
-    "prebuild:all": "prebuild --strip --target 22.18.0 --target 20.18.0 --target 18.20.0 --target 16.20.0",
+    "install": "prebuild-install -r napi || node-gyp rebuild",
+    "prebuild": "prebuild --strip --runtime napi --target 6",
+    "prebuild:all": "prebuild --strip --runtime napi --target 6",
     "prebuild:upload": "prebuild --upload-all",
     "package": "pnpm pack"
   },
@@ -52,13 +52,15 @@
     "binding.gyp",
     "src/",
     "README.md",
-    "LICENSE",
-    "prebuilds/"
+    "LICENSE"
   ],
   "license": "MIT",
   "binary": {
     "module_name": "zt-camera-recognition",
     "module_path": "./build/Release",
-    "host": "https://github.com/lzt-T/zt-camera-recognition/releases/download/"
+    "host": "https://github.com/lzt-T/zt-camera-recognition/releases/download/",
+    "napi_versions": [
+      6
+    ]
   }
 }
