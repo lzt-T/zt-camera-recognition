@@ -1,7 +1,7 @@
 {
-  "name": "md-camera-recognition",
-  "version": "1.0.0",
-  "description": "跨平台摄像头设备识别库",
+  "name": "zt-camera-recognition",
+  "version": "1.0.2",
+  "description": "Cross-platform camera device recognition library",
   "main": "index.js",
   "types": "index.d.ts",
   "packageManager": "pnpm@9.0.0",
@@ -57,8 +57,8 @@
   ],
   "license": "MIT",
   "binary": {
-    "module_name": "md-camera-recognition",
+    "module_name": "zt-camera-recognition",
     "module_path": "./build/Release",
-    "host": "https://github.com/lzt-T/md-camera-recognition/releases/download/"
+    "host": "https://github.com/lzt-T/zt-camera-recognition/releases/download/"
   }
 }

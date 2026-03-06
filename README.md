@@ -1,4 +1,4 @@
-# md-camera-recognition
+# zt-camera-recognition
 
 跨平台摄像头设备识别库 - 支持 Windows 和 macOS
 
@@ -13,15 +13,15 @@
 ## 安装
 
 ```bash
-npm install md-camera-recognition
+npm install zt-camera-recognition
 # 或
-pnpm install md-camera-recognition
+pnpm install zt-camera-recognition
 ```
 
 ## 使用方法
 
 ```javascript
-const camera = require('md-camera-recognition');
+const camera = require('zt-camera-recognition');
 
 const devices = camera.getCameraDevices();
 
@@ -65,7 +65,7 @@ interface CameraDevice {
 本库提供 TypeScript 类型定义：
 
 ```typescript
-import camera from 'md-camera-recognition';
+import camera from 'zt-camera-recognition';
 
 const devices: camera.CameraDevice[] = camera.getCameraDevices();
 ```
@@ -88,8 +88,8 @@ const devices: camera.CameraDevice[] = camera.getCameraDevices();
 ## 从源码构建
 
 ```bash
-git clone https://github.com/lzt-T/md-camera-recognition.git
-cd md-camera-recognition
+git clone https://github.com/lzt-T/zt-camera-recognition.git
+cd zt-camera-recognition
 pnpm install
 pnpm run build
 ```
@@ -115,7 +115,7 @@ pnpm run prebuild:all
 
 ### 2. 上传到 GitHub Releases
 
-访问 [GitHub Releases](https://github.com/lzt-T/md-camera-recognition/releases)，创建新版本并上传所有 `prebuilds/` 目录下的 `.tar.gz` 文件。
+访问 [GitHub Releases](https://github.com/lzt-T/zt-camera-recognition/releases)，创建新版本并上传所有 `prebuilds/` 目录下的 `.tar.gz` 文件。
 
 ### 3. 更新 package.json
 
