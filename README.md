@@ -9,6 +9,7 @@
 
 - 跨平台支持：Windows 和 macOS
 - 获取摄像头设备完整信息（名称、厂商 ID、产品 ID、安装日期等）
+- 获取系统安装日期（Windows 专有），可用于判断摄像头是否为内置设备
 - 原生 C++ 实现，性能优越
 - 预构建二进制文件，自动从 GitHub Releases 下载，无需本地编译环境
 - 兼容所有主流包管理器（npm / yarn / pnpm）
@@ -113,6 +114,35 @@ interface CameraDevice {
 | `productId` | ✅ | — |
 | `installDate` | ✅ | — |
 | `deviceType` | — | ✅ |
+
+### `getSystemInstallDate()`
+
+获取操作系统的安装日期。
+
+**返回值：** `string`
+
+- **Windows**：返回系统安装日期，格式 `YYYY-MM-DD HH:mm:ss`
+- **macOS**：返回空字符串（不支持）
+
+**使用场景：**
+
+结合设备的 `installDate` 和系统安装日期，可以判断摄像头是否为内置设备：
+
+```javascript
+const camera = require('zt-camera-recognition');
+
+const systemInstallDate = camera.getSystemInstallDate();
+const devices = camera.getCameraDevices();
+
+devices.forEach((device) => {
+  if (device.installDate && systemInstallDate) {
+    const isBuiltIn = device.installDate <= systemInstallDate;
+    console.log(`${device.name}: ${isBuiltIn ? '内置' : '外接'}`);
+  }
+});
+```
+
+> **原理说明：** OEM 品牌电脑在工厂预装系统时会同时安装内置摄像头驱动，因此内置摄像头的安装日期通常早于或等于系统安装日期；而外接摄像头是用户后续插入的，安装日期晚于系统安装日期。
 
 ## 平台支持
 

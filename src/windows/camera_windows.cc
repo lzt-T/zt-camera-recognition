@@ -185,4 +185,95 @@ std::vector<CameraDevice> CameraWindows::getCameraDevices() {
     return devices;
 }
 
+/**
+ * 通过 WMI 查询 Win32_OperatingSystem.InstallDate 获取系统安装日期。
+ * InstallDate 格式为 CIM_DATETIME（如 "20250522200936.000000+480"），
+ * 解析后返回 "YYYY-MM-DD HH:MM:SS" 格式。查询失败返回空字符串。
+ */
+std::string CameraWindows::getSystemInstallDate() {
+    std::string result;
+    bool needUninitialize = false;
+
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
+    if (SUCCEEDED(hr)) {
+        needUninitialize = true;
+    } else if (hr != RPC_E_CHANGED_MODE) {
+        return "";
+    }
+
+    try {
+        CComPtr<IWbemLocator> pLoc;
+        hr = pLoc.CoCreateInstance(CLSID_WbemLocator, NULL, CLSCTX_INPROC_SERVER);
+        if (FAILED(hr)) {
+            if (needUninitialize) CoUninitialize();
+            return "";
+        }
+
+        CComPtr<IWbemServices> pSvc;
+        hr = pLoc->ConnectServer(
+            _bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc
+        );
+        if (FAILED(hr)) {
+            if (needUninitialize) CoUninitialize();
+            return "";
+        }
+
+        hr = CoSetProxyBlanket(
+            pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL,
+            RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE
+        );
+        if (FAILED(hr)) {
+            if (needUninitialize) CoUninitialize();
+            return "";
+        }
+
+        CComPtr<IEnumWbemClassObject> pEnumerator;
+        hr = pSvc->ExecQuery(
+            _bstr_t(L"WQL"),
+            _bstr_t(L"SELECT InstallDate FROM Win32_OperatingSystem"),
+            WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+            NULL, &pEnumerator
+        );
+        if (FAILED(hr)) {
+            if (needUninitialize) CoUninitialize();
+            return "";
+        }
+
+        IWbemClassObject *pclsObj = NULL;
+        ULONG uReturn = 0;
+
+        hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+        if (SUCCEEDED(hr) && uReturn > 0 && pclsObj) {
+            VARIANT vtProp;
+            VariantInit(&vtProp);
+            hr = pclsObj->Get(L"InstallDate", 0, &vtProp, 0, 0);
+
+            if (SUCCEEDED(hr) && vtProp.vt == VT_BSTR && vtProp.bstrVal) {
+                std::wstring wstr(vtProp.bstrVal);
+                std::string dateStr = WCharToChar(wstr.c_str());
+
+                if (dateStr.length() >= 14) {
+                    char buffer[32];
+                    sprintf_s(buffer, sizeof(buffer), "%s-%s-%s %s:%s:%s",
+                        dateStr.substr(0, 4).c_str(),
+                        dateStr.substr(4, 2).c_str(),
+                        dateStr.substr(6, 2).c_str(),
+                        dateStr.substr(8, 2).c_str(),
+                        dateStr.substr(10, 2).c_str(),
+                        dateStr.substr(12, 2).c_str()
+                    );
+                    result = buffer;
+                }
+            }
+            VariantClear(&vtProp);
+            pclsObj->Release();
+        }
+    } catch (...) {
+        if (needUninitialize) CoUninitialize();
+        return "";
+    }
+
+    if (needUninitialize) CoUninitialize();
+    return result;
+}
 

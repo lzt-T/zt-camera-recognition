@@ -56,12 +56,45 @@ Napi::Array GetCameraDevices(const Napi::CallbackInfo &info)
 }
 
 /**
- * N-API 模块入口：将 getCameraDevices 注册为 exports.getCameraDevices。
+ * 获取操作系统安装日期，返回 N-API 字符串。
+ * Windows 返回格式化的日期字符串，macOS 返回空字符串。
+ */
+Napi::String GetSystemInstallDate(const Napi::CallbackInfo &info)
+{
+    Napi::Env env = info.Env();
+
+    try
+    {
+        std::unique_ptr<CameraInterface> cameraInterface(createCameraInterface());
+        if (!cameraInterface)
+        {
+            return Napi::String::New(env, "");
+        }
+
+        std::string installDate = cameraInterface->getSystemInstallDate();
+        return Napi::String::New(env, installDate);
+    }
+    catch (const std::exception &e)
+    {
+        Napi::Error::New(env, "Error getting system install date: " + std::string(e.what())).ThrowAsJavaScriptException();
+        return Napi::String::New(env, "");
+    }
+    catch (...)
+    {
+        Napi::Error::New(env, "Unknown error occurred").ThrowAsJavaScriptException();
+        return Napi::String::New(env, "");
+    }
+}
+
+/**
+ * N-API 模块入口：将 getCameraDevices 和 getSystemInstallDate 注册到 exports。
  */
 Napi::Object Init(Napi::Env env, Napi::Object exports)
 {
     exports.Set(Napi::String::New(env, "getCameraDevices"),
                 Napi::Function::New(env, GetCameraDevices));
+    exports.Set(Napi::String::New(env, "getSystemInstallDate"),
+                Napi::Function::New(env, GetSystemInstallDate));
     return exports;
 }
 

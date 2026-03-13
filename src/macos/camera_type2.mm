@@ -80,3 +80,10 @@ std::vector<CameraDevice> CameraType::getCameraDevices() {
 
     return devices;
 }
+
+/**
+ * macOS 不支持获取系统安装日期，返回空字符串。
+ */
+std::string CameraType::getSystemInstallDate() {
+    return "";
+}

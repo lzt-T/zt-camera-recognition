@@ -45,6 +45,12 @@ public:
      * @return 设备列表，每个元素为 CameraDevice
      */
     virtual std::vector<CameraDevice> getCameraDevices() = 0;
+
+    /**
+     * @brief 获取操作系统安装日期
+     * @return 安装日期字符串，格式 YYYY-MM-DD HH:mm:ss（Windows）；macOS 返回空字符串
+     */
+    virtual std::string getSystemInstallDate() = 0;
 };
 
 /**
@@ -59,6 +65,13 @@ CameraInterface *createCameraInterface();
  * @return 设备对象数组，每项含 name/vendorId/productId/installDate/deviceType
  */
 Napi::Array GetCameraDevices(const Napi::CallbackInfo &info);
+
+/**
+ * @brief N-API 导出：获取系统安装日期（对应 JS 的 getSystemInstallDate()）
+ * @param info N-API 回调信息
+ * @return 系统安装日期字符串（Windows）或空字符串（macOS）
+ */
+Napi::String GetSystemInstallDate(const Napi::CallbackInfo &info);
 
 /**
  * @brief N-API 模块初始化，将 getCameraDevices 挂载到 exports

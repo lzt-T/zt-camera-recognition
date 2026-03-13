@@ -21,6 +21,7 @@ public:
   CameraType();
   virtual ~CameraType();
   virtual std::vector<CameraDevice> getCameraDevices() override;
+  virtual std::string getSystemInstallDate() override;
 
 private:
 #ifdef __APPLE__

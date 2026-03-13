@@ -16,8 +16,11 @@
 #include <setupapi.h>
 #include <initguid.h>
 #include <devpkey.h>
+#include <wbemidl.h>
+#include <comdef.h>
 
 #pragma comment(lib, "setupapi.lib")
+#pragma comment(lib, "wbemuuid.lib")
 
 /** 视频设备接口类 GUID（用于 SetupDiGetClassDevsW 枚举视频类设备） */
 DEFINE_GUID(GUID_DEVINTERFACE_VIDEO, 0x65E8773D, 0x8F56, 0x11D0, 0xA3, 0xB9, 0x00, 0xA0, 0xC9, 0x22, 0x31, 0x96);
@@ -39,6 +42,7 @@ public:
     CameraWindows();
     virtual ~CameraWindows();
     virtual std::vector<CameraDevice> getCameraDevices() override;
+    virtual std::string getSystemInstallDate() override;
 
 private:
     /** 将宽字符串转为 UTF-8 的 std::string，空指针返回 "" */
