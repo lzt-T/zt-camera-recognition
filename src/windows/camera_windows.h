@@ -27,7 +27,7 @@ DEFINE_GUID(GUID_DEVINTERFACE_VIDEO, 0x65E8773D, 0x8F56, 0x11D0, 0xA3, 0xB9, 0x0
  * @brief 通过 SetupAPI 获取的设备扩展属性（当前仅安装日期）
  */
 struct AdvancedProperties {
-    std::string installDate = "";  /**< 设备安装日期，格式为 "YYYY-MM-DD HH:MM:SS" */
+    std::string installDate;  /**< 设备安装日期，格式为 "YYYY-MM-DD HH:MM:SS" */
 };
 
 /**

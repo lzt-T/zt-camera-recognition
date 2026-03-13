@@ -7,6 +7,7 @@
  */
 
 #include "camera_common.h"
+#include <memory>
 
 /**
  * 获取当前系统所有视频输入设备，并转换为 N-API 数组。
@@ -19,7 +20,7 @@ Napi::Array GetCameraDevices(const Napi::CallbackInfo &info)
 
     try
     {
-        CameraInterface *cameraInterface = createCameraInterface();
+        std::unique_ptr<CameraInterface> cameraInterface(createCameraInterface());
         if (!cameraInterface)
         {
             Napi::Error::New(env, "Failed to create camera interface").ThrowAsJavaScriptException();
@@ -27,6 +28,7 @@ Napi::Array GetCameraDevices(const Napi::CallbackInfo &info)
         }
 
         std::vector<CameraDevice> devices = cameraInterface->getCameraDevices();
+        result = Napi::Array::New(env, static_cast<uint32_t>(devices.size()));
 
         for (size_t i = 0; i < devices.size(); ++i)
         {
@@ -38,8 +40,6 @@ Napi::Array GetCameraDevices(const Napi::CallbackInfo &info)
             deviceObj.Set("deviceType", Napi::String::New(env, devices[i].deviceType));
             result.Set(i, deviceObj);
         }
-
-        delete cameraInterface;
     }
     catch (const std::exception &e)
     {

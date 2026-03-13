@@ -8,8 +8,8 @@
  */
 
 #include "camera_windows.h"
-#include <iostream>
 #include <stdio.h>
+#include <vector>
 
 CameraWindows::CameraWindows() {
 }
@@ -72,8 +72,9 @@ AdvancedProperties CameraWindows::GetAdvancedProperties(const std::string& devic
         SetupDiGetDeviceInterfaceDetailW(hDevInfo, &devInterfaceData, NULL, 0, &detailSize, NULL);
         
         if (detailSize == 0) continue;
-        
-        PSP_DEVICE_INTERFACE_DETAIL_DATA_W detailData = (PSP_DEVICE_INTERFACE_DETAIL_DATA_W) new char[detailSize];
+
+        std::vector<char> detailBuf(detailSize);
+        PSP_DEVICE_INTERFACE_DETAIL_DATA_W detailData = reinterpret_cast<PSP_DEVICE_INTERFACE_DETAIL_DATA_W>(detailBuf.data());
         detailData->cbSize = sizeof(SP_DEVICE_INTERFACE_DETAIL_DATA_W);
 
         SP_DEVINFO_DATA devInfoData = { sizeof(SP_DEVINFO_DATA) };
@@ -89,13 +90,10 @@ AdvancedProperties CameraWindows::GetAdvancedProperties(const std::string& devic
                         props.installDate = FileTimeToString(installDate);
                     }
                 }
-                
-                delete[] detailData;
                 SetupDiDestroyDeviceInfoList(hDevInfo);
                 return props;
             }
         }
-        delete[] detailData;
     }
 
     SetupDiDestroyDeviceInfoList(hDevInfo);
@@ -130,9 +128,9 @@ std::vector<CameraDevice> CameraWindows::getCameraDevices() {
             return devices;
         }
 
-        IMoniker *pMoniker = NULL;
+        CComPtr<IMoniker> pMoniker;
         ULONG cFetched;
-        
+
         while (pEnumCat->Next(1, &pMoniker, &cFetched) == S_OK) {
             CComPtr<IPropertyBag> pPropBag;
             hr = pMoniker->BindToStorage(NULL, NULL, IID_IPropertyBag, (void**)&pPropBag);
@@ -176,10 +174,6 @@ std::vector<CameraDevice> CameraWindows::getCameraDevices() {
                     
                     devices.push_back(device);
                 }
-            }
-            if (pMoniker) {
-                pMoniker->Release();
-                pMoniker = NULL;
             }
         }
     } catch (...) {

@@ -31,7 +31,9 @@ CameraType::~CameraType() {
 std::string CameraType::NSStringToStdString(void *nsString) {
     NSString *str = (__bridge NSString *)nsString;
     if (!str) return "";
-    return std::string([str UTF8String]);
+    const char *utf8 = [str UTF8String];
+    if (!utf8) return "";
+    return std::string(utf8);
 }
 #endif
 
